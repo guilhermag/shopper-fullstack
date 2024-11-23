@@ -37,10 +37,9 @@ class RideService {
     const routeResponse: RouteResponse = response.data;
     const estimate: Estimate = this.mapResponse(routeResponse);
     const res = await this.estimateDrivers(estimate);
-    const drivers = res.options.map((driver) => driver.id);
     this.cacheService.add({
       source: 'estimate',
-      result: { distance: res.distance, origin, destination, customerId, drivers },
+      result: { distance: res.distance, origin, destination, customerId },
     });
     return res;
   }

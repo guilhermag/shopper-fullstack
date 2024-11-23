@@ -35,22 +35,9 @@ class RideController {
 
   async confirm(req: Request, res: Response): Promise<void> {
     try {
-      // {
-      //   "customer_id": "3423",
-      //   "origin": "Max atacadista, Arapongas, Paraná",
-      //   "destination": "rua joão de barro, 92, Arapongas, Paraná",
-      //   "distance": 1,
-      //   "duration": "",
-      //   "driver": {
-      //     "id": 1,
-      //     "name": ""
-      //   },
-      //   "value": 1
-      // }
       const customerId = req.body['customer_id'];
       const { origin, destination, distance, duration, driver, value } = req.body;
       await checkRequisitionError(origin, destination, customerId, 'confirm', driver['id']);
-
       await RideModel.create({
         customerId,
         destination,
