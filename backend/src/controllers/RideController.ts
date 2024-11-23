@@ -74,12 +74,45 @@ class RideController {
 
   async getRidesByCustomerId(req: Request, res: Response): Promise<void> {
     try {
-      // const customerId = parseInt(req.params.customerId);
-      // const rides = await RideService.getRidesByCustomerId(customerId);
-      // res.json({ rides });
+      const customerId = parseInt(req.params.customer_id);
+      const driverId = req.query.driver_id ? parseInt(req.query.driver_id as string) : undefined;
+
+      if (!customerId) {
+        throw new Error('Customer ID must be specified');
+      }
+
+      if (driverId) {
+        const driver = await DriverModel.getById(driverId);
+        if (!driver) {
+          throw new Error('Invalid Driver ID');
+        }
+      }
+
+      // rides = RideModel.
+      res.json({ success: true });
     } catch (error) {
-      console.error('Erro ao buscar corridas:', error);
-      res.status(500).json({ error: 'Erro ao buscar corridas' });
+      if (error instanceof Error) {
+        if (error.message === 'Invalid Driver ID') {
+          res.status(400).json({
+            error_code: 'INVALID_DRIVER',
+            error_description: error.message,
+          });
+        } else if (error.message === 'Invalid mileage for the driver') {
+          res.status(406).json({
+            error_code: 'INVALID_DISTANCE',
+            error_description: error.message,
+          });
+        } else {
+          res.status(400).json({
+            error_code: 'INVALID_DATA',
+            error_description: error.message,
+          });
+        }
+      } else {
+        res.status(400).json({
+          error_code: 'UNKNOWN_ERROR',
+        });
+      }
     }
   }
 }

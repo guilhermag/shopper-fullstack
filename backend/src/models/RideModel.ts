@@ -21,6 +21,16 @@ class RideModel {
   async getById(id: number): Promise<Ride | null> {
     return await prisma.ride.findUnique({ where: { id } });
   }
+
+  async getRideByCustomerOrDriver(customerId: string, driverId?: number) {
+    const customer = await CustomerModel.getByCustomerId(customerId);
+    if (!!driverId && customer) {
+      return await prisma.ride.findMany({
+        where: { customerId: customer.id, driverId: driverId },
+        orderBy: {},
+      });
+    }
+  }
 }
 
 export default new RideModel();
