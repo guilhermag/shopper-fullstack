@@ -5,12 +5,19 @@ import { Request, Response } from 'express';
 import RideService from '../services/RideService';
 import DriverModel from '../models/DriverModel';
 import { metersToKm } from '../shared/utils/utils';
+import RideModel from '../models/RideModel';
+import CustomerModel from '../models/CustomerModel';
 
 class RideController {
   async estimate(req: Request, res: Response): Promise<void> {
     try {
-      const { origin, destination, customerId } = req.body;
+      const { origin, destination } = req.body;
+      const customerId = req.body['customer_id'];
       await checkRequisitionError(origin, destination, customerId, 'estimate');
+      const customer = await CustomerModel.getByCustomerId(customerId);
+      if (!customer) {
+        await CustomerModel.create(customerId);
+      }
       res.json(await RideService.estimate(origin, destination, customerId));
     } catch (error) {
       if (error instanceof Error) {
@@ -28,38 +35,48 @@ class RideController {
 
   async confirm(req: Request, res: Response): Promise<void> {
     try {
-      const { customerId, driverId, origin, destination } = req.body;
-      await checkRequisitionError(origin, destination, customerId, 'confirm', driverId);
-      // const distance = await RideService.calculateDistance(origin, destination);
-      // const duration = await RideService.calculateDuration(origin, destination);
-      // const driver = Driver.getDriverById(driverId);
-      // if (!driver) {
-      //   return res.status(404).json({ error: 'Motorista não encontrado' });
+      // {
+      //   "customer_id": "3423",
+      //   "origin": "Max atacadista, Arapongas, Paraná",
+      //   "destination": "rua joão de barro, 92, Arapongas, Paraná",
+      //   "distance": 1,
+      //   "duration": "",
+      //   "driver": {
+      //     "id": 1,
+      //     "name": ""
+      //   },
+      //   "value": 1
       // }
-      // const value = RideService.calculatePrice(distance, driver.rate, driver.min_km);
-      // // Criar a corrida no banco de dados (opcional)
-      // const rideData: Ride = {
-      //   id: 0, // O Prisma irá gerar o ID automaticamente
-      //   customerId: parseInt(customerId),
-      //   driverId: driverId,
-      //   origin,
-      //   destination,
-      //   distance,
-      //   duration,
-      //   value,
-      //   status: 'confirmed', // ou outro status inicial
-      //   startTime: new Date(),
-      //   endTime: null,
-      //   paymentMethod: 'cash', // ou outro método de pagamento
-      // };
-      // const createdRide = await RideService.createRide(rideData);
-      res.json({ ride: 'createdRide' });
+      const customerId = req.body['customer_id'];
+      const { origin, destination, distance, duration, driver, value } = req.body;
+      await checkRequisitionError(origin, destination, customerId, 'confirm', driver['id']);
+
+      await RideModel.create({
+        customerId,
+        destination,
+        distance,
+        driverId: driver['id'],
+        origin,
+      });
+      res.json({ success: true });
     } catch (error) {
       if (error instanceof Error) {
-        res.status(400).json({
-          error_code: 'INVALID_DATA',
-          error_description: error.message,
-        });
+        if (error.message === 'Driver not found') {
+          res.status(404).json({
+            error_code: 'DRIVER_NOT_FOUND',
+            error_description: error.message,
+          });
+        } else if (error.message === 'Invalid mileage for the driver') {
+          res.status(406).json({
+            error_code: 'INVALID_DISTANCE',
+            error_description: error.message,
+          });
+        } else {
+          res.status(400).json({
+            error_code: 'INVALID_DATA',
+            error_description: error.message,
+          });
+        }
       } else {
         res.status(400).json({
           error_code: 'UNKNOWN_ERROR',
@@ -107,7 +124,7 @@ const checkRequisitionError = async (
 
       const driver = await DriverModel.getById(driverId);
       if (!driver) {
-        throw new Error('Driver Id must be valid');
+        throw new Error('Driver not found');
       }
 
       let distance = 0;
@@ -127,10 +144,16 @@ const checkRequisitionError = async (
         } else {
           selectedCache = cacheAux[0];
         }
-        console.log(selectedCache);
+
+        distance = selectedCache ? selectedCache.result['distance'] : 0;
       }
+
       if (driver && distance && metersToKm(distance) < driver.minKm) {
         throw new Error('Invalid mileage for the driver');
+      }
+
+      if (!selectedCache) {
+        throw new Error('Route not found');
       }
     }
   }

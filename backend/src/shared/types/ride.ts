@@ -24,4 +24,12 @@ interface DriverRide {
   value: number;
 }
 
-export { RideData, Estimate, DriverRide };
+interface CreateRide {
+  customerId: string;
+  origin: string;
+  destination: string;
+  distance: number;
+  driverId: number;
+}
+
+export { RideData, Estimate, DriverRide, CreateRide };
