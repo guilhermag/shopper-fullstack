@@ -22,7 +22,9 @@ CREATE TABLE "Ride" (
     "driverId" INTEGER NOT NULL,
     "origin" TEXT NOT NULL,
     "destination" TEXT NOT NULL,
+    "duration" TEXT NOT NULL,
     "distance" REAL NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "Ride_customerId_fkey" FOREIGN KEY ("customerId") REFERENCES "Customer" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT "Ride_driverId_fkey" FOREIGN KEY ("driverId") REFERENCES "Driver" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );

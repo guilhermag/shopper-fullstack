@@ -29,6 +29,7 @@ interface CreateRide {
   origin: string;
   destination: string;
   distance: number;
+  duration: string;
   driverId: number;
 }
 

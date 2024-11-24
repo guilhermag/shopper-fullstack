@@ -7,6 +7,7 @@ import DriverModel from '../models/DriverModel';
 import { metersToKm } from '../shared/utils/utils';
 import RideModel from '../models/RideModel';
 import CustomerModel from '../models/CustomerModel';
+import moment from 'moment';
 
 class RideController {
   async estimate(req: Request, res: Response): Promise<void> {
@@ -44,6 +45,7 @@ class RideController {
         distance,
         driverId: driver['id'],
         origin,
+        duration,
       });
       res.json({ success: true });
     } catch (error) {
@@ -74,7 +76,7 @@ class RideController {
 
   async getRidesByCustomerId(req: Request, res: Response): Promise<void> {
     try {
-      const customerId = parseInt(req.params.customer_id);
+      const customerId = req.params.customer_id;
       const driverId = req.query.driver_id ? parseInt(req.query.driver_id as string) : undefined;
 
       if (!customerId) {
@@ -87,9 +89,14 @@ class RideController {
           throw new Error('Invalid Driver ID');
         }
       }
+      const response = (await RideModel.getRideByCustomerOrDriver(customerId)).map((ride) => {
+        const createdAt = moment(ride.createdAt)
+          .tz('America/Sao_Paulo')
+          .format('YYYY-MM-DDTHH:mm:ss.SSS[Z]');
+        return { ...ride, createdAt: createdAt };
+      });
 
-      // rides = RideModel.
-      res.json({ success: true });
+      res.json(response);
     } catch (error) {
       if (error instanceof Error) {
         if (error.message === 'Invalid Driver ID') {

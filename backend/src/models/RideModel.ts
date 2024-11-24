@@ -1,12 +1,14 @@
 import { PrismaClient, Ride } from '@prisma/client';
 import { CreateRide } from '../shared/types/ride';
 import CustomerModel from './CustomerModel';
+import moment from 'moment-timezone';
 
 const prisma = new PrismaClient();
 
 class RideModel {
   async create(data: CreateRide): Promise<Ride> {
     const customer = await CustomerModel.getByCustomerId(data.customerId);
+    const saoPauloDate = moment();
     return await prisma.ride.create({
       data: {
         destination: data.destination,
@@ -14,6 +16,7 @@ class RideModel {
         origin: data.origin,
         customerId: customer!.id,
         driverId: data.driverId,
+        duration: data.duration,
       },
     });
   }
@@ -22,14 +25,21 @@ class RideModel {
     return await prisma.ride.findUnique({ where: { id } });
   }
 
-  async getRideByCustomerOrDriver(customerId: string, driverId?: number) {
+  async getRideByCustomerOrDriver(customerId: string, driverId?: number): Promise<Ride[]> {
     const customer = await CustomerModel.getByCustomerId(customerId);
+    let rides: Ride[] = [];
     if (!!driverId && customer) {
-      return await prisma.ride.findMany({
+      rides = await prisma.ride.findMany({
         where: { customerId: customer.id, driverId: driverId },
-        orderBy: {},
+        orderBy: { createdAt: 'desc' },
+      });
+    } else if (customer) {
+      rides = await prisma.ride.findMany({
+        where: { customerId: customer.id },
+        orderBy: { createdAt: 'desc' },
       });
     }
+    return rides;
   }
 }
 

@@ -35,6 +35,7 @@ model Ride {
   driverId    Int
   origin      String
   destination String
+  duration    String
   distance    Float
   createdAt   DateTime @default(now())
 }
