@@ -6,7 +6,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node dist/index.js",
     "dev": "nodemon",
-    "data-migration:init": "tsx ./prisma/migrations/20241124115505_init/data-migration.ts",
+    "data-migration:init": "tsx ./prisma/migrations/20241124234754_init/data-migration.ts",
     "prisma:dev:init": "prisma migrate deploy && npm run data-migration:init",
     "dev:init": "npm run prisma:dev:init && npm run dev"
   },

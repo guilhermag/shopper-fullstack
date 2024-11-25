@@ -7,7 +7,7 @@ import DriverModel from '../models/DriverModel';
 import { metersToKm } from '../shared/utils/utils';
 import RideModel from '../models/RideModel';
 import CustomerModel from '../models/CustomerModel';
-import moment from 'moment';
+import { Ride } from '@prisma/client';
 
 class RideController {
   async estimate(req: Request, res: Response): Promise<void> {
@@ -46,6 +46,7 @@ class RideController {
         driverId: driver['id'],
         origin,
         duration,
+        value,
       });
       res.json({ success: true });
     } catch (error) {
@@ -82,21 +83,20 @@ class RideController {
       if (!customerId) {
         throw new Error('Customer ID must be specified');
       }
-
+      let response: Ride[];
       if (driverId) {
         const driver = await DriverModel.getById(driverId);
         if (!driver) {
           throw new Error('Invalid Driver ID');
         }
+        response = await RideModel.getRideByCustomerOrDriver(customerId, driverId);
+      } else {
+        response = await RideModel.getRideByCustomerOrDriver(customerId);
       }
-      const response = (await RideModel.getRideByCustomerOrDriver(customerId)).map((ride) => {
-        const createdAt = moment(ride.createdAt)
-          .tz('America/Sao_Paulo')
-          .format('YYYY-MM-DDTHH:mm:ss.SSS[Z]');
-        return { ...ride, createdAt: createdAt };
-      });
-
-      res.json(response);
+      if (response.length === 0) {
+        throw new Error('No Rides found');
+      }
+      res.json(await RideService.mapRides(response));
     } catch (error) {
       if (error instanceof Error) {
         if (error.message === 'Invalid Driver ID') {
@@ -104,9 +104,9 @@ class RideController {
             error_code: 'INVALID_DRIVER',
             error_description: error.message,
           });
-        } else if (error.message === 'Invalid mileage for the driver') {
-          res.status(406).json({
-            error_code: 'INVALID_DISTANCE',
+        } else if (error.message === 'No Rides found') {
+          res.status(404).json({
+            error_code: 'NO_RIDES_FOUND',
             error_description: error.message,
           });
         } else {

@@ -1,12 +1,14 @@
 import axios from 'axios';
 import { API_URL, FIELD_MASK_API } from '../shared/constants/ride';
-import { DriverRide, Estimate, RideData } from '../shared/types/ride';
+import { DriverRide, Estimate, RideData, RideMap, RideResponse } from '../shared/types/ride';
 import { RouteResponse } from '../shared/types/estimate';
 import * as _ from 'lodash';
 import DriverModel from '../models/DriverModel';
 import { isEmpty, metersToKm } from '../shared/utils/utils';
-import { Driver } from '@prisma/client';
+import { Driver, Ride } from '@prisma/client';
 import { CacheService } from './CacheService';
+import moment from 'moment-timezone';
+import CustomerModel from '../models/CustomerModel';
 class RideService {
   cacheService: CacheService;
   constructor() {
@@ -82,6 +84,30 @@ class RideService {
       };
     });
     return drivers.sort((a, b) => a.value - b.value);
+  }
+
+  async mapRides(data: Ride[]): Promise<RideResponse> {
+    const customer = await CustomerModel.getById(data[0].customerId);
+    const ridePromises = data.map(async (ride) => {
+      const driver = await DriverModel.getById(ride.driverId);
+      return {
+        id: ride.id,
+        date: moment(ride.createdAt).tz('America/Sao_Paulo').format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
+        origin: ride.origin,
+        destination: ride.destination,
+        distance: ride.distance,
+        duration: ride.duration,
+        driver: { id: driver!.id, name: driver!.name },
+        value: ride.value,
+      };
+    });
+
+    const rideMap = await Promise.all(ridePromises);
+
+    return {
+      customer_id: customer!.customer_id,
+      rides: rideMap,
+    };
   }
 }
 

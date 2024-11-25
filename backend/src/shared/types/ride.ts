@@ -31,6 +31,28 @@ interface CreateRide {
   distance: number;
   duration: string;
   driverId: number;
+  value: number;
 }
 
-export { RideData, Estimate, DriverRide, CreateRide };
+interface RideResponse {
+  customer_id: string;
+  rides: RideMap[];
+}
+
+interface RideMap {
+  id: number;
+  date: string;
+  origin: string;
+  destination: string;
+  distance: number;
+  duration: string;
+  driver: Driver;
+  value: number;
+}
+
+interface Driver {
+  id: number;
+  name: string;
+}
+
+export { RideData, Estimate, DriverRide, CreateRide, RideResponse, RideMap };

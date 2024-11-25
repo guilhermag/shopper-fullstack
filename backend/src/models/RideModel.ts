@@ -1,14 +1,12 @@
 import { PrismaClient, Ride } from '@prisma/client';
 import { CreateRide } from '../shared/types/ride';
 import CustomerModel from './CustomerModel';
-import moment from 'moment-timezone';
 
 const prisma = new PrismaClient();
 
 class RideModel {
   async create(data: CreateRide): Promise<Ride> {
     const customer = await CustomerModel.getByCustomerId(data.customerId);
-    const saoPauloDate = moment();
     return await prisma.ride.create({
       data: {
         destination: data.destination,
@@ -17,6 +15,7 @@ class RideModel {
         customerId: customer!.id,
         driverId: data.driverId,
         duration: data.duration,
+        value: data.value,
       },
     });
   }

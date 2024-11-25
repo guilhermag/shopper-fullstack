@@ -7,6 +7,10 @@ class CustomerModel {
     return await prisma.customer.findUnique({ where: { customer_id: customerId } });
   }
 
+  async getById(id: number): Promise<Customer | null> {
+    return await prisma.customer.findUnique({ where: { id: id } });
+  }
+
   async getAll(): Promise<Driver[]> {
     return await prisma.driver.findMany();
   }
