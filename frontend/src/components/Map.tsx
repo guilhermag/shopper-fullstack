@@ -1,23 +1,17 @@
-
 interface MapProps {
   origin: string;
   destination: string;
 }
 
 const Map = ({ origin, destination }: MapProps) => {
-  const mapUrl = `https://www.google.com/maps/embed/v1/directions?key=YOUR_API_KEY&origin=${encodeURIComponent(
+  const GOOGLE_API_KEY = process.env.REACT_APP_GOOGLE_API_KEY;
+  const src = `https://maps.googleapis.com/maps/api/staticmap?size=600x600&maptype=roadmap&markers=color:blue%7Clabel:A%7C${encodeURIComponent(
     origin
-  )}&destination=${encodeURIComponent(destination)}`;
+  )}&markers=color:red%7Clabel:B%7C${encodeURIComponent(
+    destination
+  )}&path=color:0xFFF|weight:50|&key=${GOOGLE_API_KEY}`;
 
-  return (
-    <iframe
-      width="600"
-      height="450"
-      style={{ border: 0 }}
-      loading="lazy"
-      src={mapUrl}
-    ></iframe>
-  );
+  return <img src={src} alt='' />;
 };
 
 export default Map;

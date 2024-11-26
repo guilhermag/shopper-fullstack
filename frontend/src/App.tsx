@@ -7,9 +7,9 @@ import RideRequest from './pages/RideRquest';
 const App = () => (
   <BrowserRouter>
     <Routes>
-      <Route path="/" element={<RideRequest />} />
-      <Route path="/ride-options" element={<RideOptionsPage />} />
-      <Route path="/ride-history" element={<RideHistoryPage />} />
+      <Route path='/' element={<RideRequest />} />
+      <Route path='/ride-options' element={<RideOptionsPage />} />
+      <Route path='/ride-history' element={<RideHistoryPage />} />
     </Routes>
   </BrowserRouter>
 );
