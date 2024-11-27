@@ -1,20 +1,13 @@
 import axios from 'axios';
 import { API_URL, FIELD_MASK_API } from '../shared/constants/ride';
-import { DriverRide, Estimate, RideData, RideMap, RideResponse } from '../shared/types/ride';
+import { DriverRide, Estimate, RideData } from '../shared/types/ride';
 import { RouteResponse } from '../shared/types/estimate';
 import * as _ from 'lodash';
 import DriverModel from '../models/DriverModel';
 import { isEmpty, metersToKm } from '../shared/utils/utils';
 import { Driver, Ride } from '@prisma/client';
-import { CacheService } from './CacheService';
-import moment from 'moment-timezone';
 import CustomerModel from '../models/CustomerModel';
 class RideService {
-  cacheService: CacheService;
-  constructor() {
-    this.cacheService = new CacheService();
-  }
-
   instance = axios.create({
     baseURL: API_URL,
     timeout: 4000,
@@ -39,10 +32,6 @@ class RideService {
     const routeResponse: RouteResponse = response.data;
     const estimate: Estimate = this.mapResponse(routeResponse);
     const res = await this.estimateDrivers(estimate);
-    this.cacheService.add({
-      source: 'estimate',
-      result: { distance: res.distance, origin, destination, customerId },
-    });
     return res;
   }
 

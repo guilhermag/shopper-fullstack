@@ -1,5 +1,3 @@
-// src/controllers/RideController.ts
-
 import { Request, Response } from 'express';
 
 import RideService from '../services/RideService';
@@ -15,10 +13,7 @@ class RideController {
       const { origin, destination } = req.body;
       const customerId = req.body['customer_id'];
       await checkRequisitionError(origin, destination, customerId, 'estimate');
-      const customer = await CustomerModel.getByCustomerId(customerId);
-      if (!customer) {
-        await CustomerModel.create(customerId);
-      }
+      await handleCustomerIdExists(customerId);
       res.json(await RideService.estimate(origin, destination, customerId));
     } catch (error) {
       if (error instanceof Error) {
@@ -38,7 +33,15 @@ class RideController {
     try {
       const customerId = req.body['customer_id'];
       const { origin, destination, distance, duration, driver, value } = req.body;
-      await checkRequisitionError(origin, destination, customerId, 'confirm', driver['id']);
+      await checkRequisitionError(
+        origin,
+        destination,
+        customerId,
+        'confirm',
+        driver['id'],
+        distance
+      );
+      await handleCustomerIdExists(customerId);
       await RideModel.create({
         customerId,
         destination,
@@ -124,12 +127,20 @@ class RideController {
   }
 }
 
+const handleCustomerIdExists = async (customerId: string) => {
+  const customer = await CustomerModel.getByCustomerId(customerId);
+  if (!customer) {
+    await CustomerModel.create(customerId);
+  }
+};
+
 const checkRequisitionError = async (
   origin: string,
   destination: string,
   customerId: string,
   req: string,
-  driverId?: number
+  driverId?: number,
+  distance?: number
 ) => {
   if (!customerId) {
     throw new Error('Customer ID must be specified');
@@ -153,34 +164,8 @@ const checkRequisitionError = async (
       if (!driver) {
         throw new Error('Driver not found');
       }
-
-      let distance = 0;
-      const cache = RideService.cacheService.getCache();
-      let selectedCache;
-      if (cache.length > 0) {
-        const cacheAux = cache.filter((cache) => {
-          return (
-            cache.source === 'estimate' &&
-            cache.result['customerId'] === customerId &&
-            cache.result['origin'] === origin &&
-            cache.result['destination'] === destination
-          );
-        });
-        if (cacheAux.length > 1) {
-          selectedCache = cacheAux.pop();
-        } else {
-          selectedCache = cacheAux[0];
-        }
-
-        distance = selectedCache ? selectedCache.result['distance'] : 0;
-      }
-
       if (driver && distance && metersToKm(distance) < driver.minKm) {
         throw new Error('Invalid mileage for the driver');
-      }
-
-      if (!selectedCache) {
-        throw new Error('Route not found');
       }
     }
   }
