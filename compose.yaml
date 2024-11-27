@@ -1,0 +1,20 @@
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8080:8080"  
+    volumes:
+      - ./backend/prisma/dev.db:/app/prisma/dev.db
+    env_file:
+      - .env
+    command: npm run dev:env:run
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        GOOGLE_API_KEY: ${GOOGLE_API_KEY} # Passe a variável como ARG na build
+    ports:
+      - "80:80"
+    env_file:
+      - .env
