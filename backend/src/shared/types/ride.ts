@@ -1,3 +1,4 @@
+import { Ride } from '@prisma/client';
 import { LatLng, RouteResponse } from './estimate';
 
 interface RideData extends Estimate {

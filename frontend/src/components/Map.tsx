@@ -5,7 +5,7 @@ interface MapProps {
 
 const Map = ({ origin, destination }: MapProps) => {
   const GOOGLE_API_KEY = process.env.REACT_APP_GOOGLE_API_KEY;
-  const src = `https://maps.googleapis.com/maps/api/staticmap?size=600x600&maptype=roadmap&markers=color:blue%7Clabel:A%7C${encodeURIComponent(
+  const src = `https://maps.googleapis.com/maps/api/staticmap?size=540x360&maptype=roadmap&markers=color:blue%7Clabel:A%7C${encodeURIComponent(
     origin
   )}&markers=color:red%7Clabel:B%7C${encodeURIComponent(
     destination

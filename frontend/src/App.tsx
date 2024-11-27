@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 import RideOptionsPage from './pages/RideOptionsPage';
 import RideHistoryPage from './pages/RideHistoryPage';
-import RideRequest from './pages/RideRquest';
+import RideRequest from './pages/RideRequest';
 
 const App = () => (
   <BrowserRouter>

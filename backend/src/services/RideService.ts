@@ -86,13 +86,13 @@ class RideService {
     return drivers.sort((a, b) => a.value - b.value);
   }
 
-  async mapRides(data: Ride[]): Promise<RideResponse> {
+  async mapRides(data: Ride[]) {
     const customer = await CustomerModel.getById(data[0].customerId);
     const ridePromises = data.map(async (ride) => {
       const driver = await DriverModel.getById(ride.driverId);
       return {
         id: ride.id,
-        date: moment(ride.createdAt).tz('America/Sao_Paulo').format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
+        date: ride.createdAt,
         origin: ride.origin,
         destination: ride.destination,
         distance: ride.distance,
