@@ -1,50 +1,31 @@
-# React + TypeScript + Vite
+# Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Esta pasta contém o código-fonte da aplicação frontend, desenvolvida com React e TypeScript.
 
-Currently, two official plugins are available:
+## Telas
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+* **Solicitação de Viagem:**
+    * [Imagem da tela de Solicitação de Viagem]
+    * Permite que o usuário informe o ID do cliente, a origem e o destino da viagem.
+    * Exibe as estimativas de preço e tempo para cada motorista.
+* **Opções de Viagem:**
+    * [Imagem da tela de Opções de Viagem]
+    * Exibe um mapa com a rota e os marcadores de origem e destino.
+    * Lista as opções de motoristas com seus detalhes e valores.
+    * Permite que o usuário escolha um motorista e confirme a viagem.
+* **Histórico de Viagens:**
+    * [Imagem da tela de Histórico de Viagens]
+    * Permite que o usuário visualize o histórico de suas viagens.
+    * Oferece filtros por ID do cliente e ID do motorista.
 
-## Expanding the ESLint configuration
+## Como executar o frontend localmente
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+1. Navegue até a pasta `frontend`: `cd frontend`
+2. Instale as dependências: `npm install`
+3. Inicie o servidor de desenvolvimento: 1  `npm run dev`
+4. Acesse a aplicação em `http://localhost:5173` (ou a porta que o Vite estiver usando).
 
-- Configure the top-level `parserOptions` property like this:
+## Observações
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
-
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
-
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+* Certifique-se de ter o Node.js e o npm instalados na sua máquina.
+* O backend deve estar em execução para que o frontend funcione corretamente.
